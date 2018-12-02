@@ -24,6 +24,10 @@ class UserFactory(DjangoModelFactory):
         )
         self.set_password(password)
 
+    @post_generation
+    def id(self, create: bool, extracted: Sequence[Any], **kwargs):
+        self.id = 
+
     class Meta:
         model = get_user_model()
-        django_get_or_create = ["username", "name"]
+        django_get_or_create = ["username"]
