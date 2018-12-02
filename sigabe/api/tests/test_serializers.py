@@ -99,3 +99,12 @@ class TestUserNameSerializer:
         assert 'id' not in serializer.data
         assert 'name' not in serializer.data
         assert serializer.data['username']
+
+    def test_unrecognized_username(self):
+        proto_user = UserFactory.build()
+
+        serializer = serializers.ConnectionSerializer(
+            data={'username': proto_user.username}
+        )
+
+        assert not serializer.is_valid()
