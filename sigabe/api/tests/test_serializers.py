@@ -18,6 +18,8 @@ class TestUserSerializer:
             many=True
         )
 
+        # check whether the data given
+        # is complete or not
         assert serializer.data
         assert len(serializer.data) == 1
         assert serializer.data[0]['id']
@@ -37,6 +39,8 @@ class TestFriendSerializer:
             many=True
         )
 
+        # check whether the data given
+        # is partial ( not exposing all user's data)
         assert serializer.data
         assert len(serializer.data) == 1
         assert 'id' not in serializer.data[0]
@@ -56,6 +60,8 @@ class TestNonFriendSerializer:
             many=True
         )
 
+        # check whether the data given
+        # is protecting most of user's data
         assert serializer.data
         assert len(serializer.data) == 1
         assert 'id' not in serializer.data[0]
@@ -69,12 +75,27 @@ class TestUserNameSerializer:
         # create an object
         UserFactory(username='jack')
         UserFactory(username='john')
-        # models.User.objects.create(
-        #     username='john'
-        # )
-        # models.User.objects.create(
-        #     username='jack'
-        # )
 
         qs = models.User.objects.all()
+
         assert qs.count() == 2
+
+        user, target = qs
+
+        serializer = serializers.ConnectionSerializer(
+            data={'username': target.username}
+        )
+
+        # check the ability to add friends
+        # and still maintaining privacy
+        # of the user
+
+        assert serializer.is_valid()
+
+        serializer.save(user=user)
+        user.refresh_from_db()
+
+        assert target in user.friends.all()
+        assert 'id' not in serializer.data
+        assert 'name' not in serializer.data
+        assert serializer.data['username']
