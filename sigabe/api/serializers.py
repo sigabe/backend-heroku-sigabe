@@ -27,6 +27,8 @@ class NonFriendSerializer(serializers.HyperlinkedModelSerializer):
 
 class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
 
+    username = serializers.CharField()
+
     class Meta:
         model = models.User
         fields = ('username', 'image')
