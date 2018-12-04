@@ -21,8 +21,9 @@ def user_resource():
     john.friends.add(jack)
     john.save()
 
-    qs = models.User.objects.all()
-    yield qs
+    john.refresh_from_db()
+    jack.refresh_from_db()
+    yield john, jack
 
 
 @pytest.fixture()
@@ -56,6 +57,36 @@ class TestFriendViewSet:
 
         user_resource[0].refresh_from_db()
         assert not user_resource[0].friends.exists()
+
+
+class TestNonFriendViewSet:
+
+    def test_anonymous_availability(self):
+        user = UserFactory()
+        client = APIClient()
+
+        response = client.get('/api/users/')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 1
+        assert response.data['results'][0]['username'] == user.username
+
+    @pytest.mark.django_db(transaction=True)
+    def test_nonfriend_availability(self, client_resource, user_resource):
+        user_resource[0].friends.remove(user_resource[1])
+        user_resource[0].save()
+
+        response = client_resource.get('/api/users/')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 1
+        assert response.data['results'][0]['username'] == user_resource[1].username
+
+    def test_nonfriend_unavailability(self, client_resource, user_resource):
+        response = client_resource.get('/api/users/')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['count'] == 0
 
 
 class TestCircleFactorySerializer:

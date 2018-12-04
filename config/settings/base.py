@@ -65,6 +65,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'django_extensions',
     'crispy_forms',
+    'django_filters',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',

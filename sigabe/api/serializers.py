@@ -40,6 +40,9 @@ class NonFriendSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.User
         fields = ('url', 'username', 'image')
+        extra_kwargs = {
+            'url': {'view_name': 'api:user-detail'}
+        }
 
 
 # class ConnectionSerializer(serializers.HyperlinkedModelSerializer):

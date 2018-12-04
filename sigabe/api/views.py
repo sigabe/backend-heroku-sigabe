@@ -30,10 +30,16 @@ class FriendViewSet(viewsets.ReadOnlyModelViewSet):
 class NonFriendViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = serializers.NonFriendSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (permissions.AllowAny,)
+    filterset_fields = ('username',)
 
     def get_queryset(self):
-        qs = models.User.objects.exclude(friends=self.request.user)
+
+        if self.request.user.is_authenticated:
+            qs = models.User.objects.exclude(friends=self.request.user).exclude(pk=self.request.user.pk)
+        else:
+            qs = models.User.objects.all()
+
         return qs
 
     @action(methods=('post',), detail=True, permission_classes=(permissions.IsAuthenticated,))
