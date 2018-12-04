@@ -27,10 +27,14 @@ class InCircleFriendSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.User
-        fields = ('username', 'name', 'image')
+        fields = ('username', 'name', 'image', 'location')
 
     def get_location(self, instance: models.User):
-        location = instance.locations.all().order_by('-date').first()
+        location = instance.locations.all().order_by('-datetime').first()
+
+        if not location:
+            return
+
         longitude, latitude = location.longitude, location.latitude
         return {'longitude': longitude, 'latitude': latitude}
 
@@ -74,8 +78,12 @@ class NonFriendSerializer(serializers.HyperlinkedModelSerializer):
 class LocationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Location
-        fields = '__all__'
+        # fields = '__all__'
+        exclude = ('url',)
         read_only_fields = ('user',)
+        extra_kwargs = {
+            'user': {'view_name': 'api:user-detail'}
+        }
 
 
 class CircleSerializer(serializers.HyperlinkedModelSerializer):
@@ -86,3 +94,13 @@ class CircleSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Circle
         fields = '__all__'
         read_only_fields = ('creator',)
+        extra_kwargs = {
+            'url': {'view_name': 'api:circle-detail'},
+        }
+
+    def create(self, validated_data):
+        user = validated_data.pop('user')
+        instance = super().create(validated_data)
+        instance.users.add(user)
+        instance.save()
+        return instance

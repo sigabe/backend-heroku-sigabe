@@ -88,17 +88,67 @@ class TestNonFriendViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['count'] == 0
 
+    @pytest.mark.django_db(transaction=True)
+    def test_connect(self, client_resource, user_resource):
+        user_resource[0].friends.remove(user_resource[1])
+        user_resource[0].save()
 
-class TestCircleFactorySerializer:
+        response = client_resource.post(f'/api/users/{user_resource[1].pk}/connect/')
 
-    def test_validity(self):
+        assert response.status_code == status.HTTP_201_CREATED
+
+        user_resource[0].refresh_from_db()
+        assert user_resource[1] in user_resource[0].friends.all()
+
+
+class TestTrackViewSet:
+
+    def test_track(self, client_resource, user_resource):
+        proto_location = factories.LocationFactory.build()
+        response = client_resource.post('/api/tracks/', {
+            'longitude': proto_location.longitude,
+            'latitude': proto_location.latitude
+        })
+
+        assert response.status_code == status.HTTP_201_CREATED
+
+        user_resource[0].refresh_from_db()
+        assert user_resource[0].locations.exists()
+
+
+class TestCircleViewSet:
+
+    def test_create(self, client_resource, user_resource):
         proto_circle = factories.CircleFactory.build()
+        response = client_resource.post('/api/circles/', {
+            'name': proto_circle.name,
+            'image': proto_circle.image
+        })
 
-        serializer = serializers.CircleSerializer(
-            data={
-                'name': proto_circle.name,
-                'image': proto_circle.image,
-            }
-        )
+        assert response.status_code == status.HTTP_201_CREATED
 
-        assert serializer.is_valid()
+    def test_connect_valid_target(self, client_resource, user_resource):
+        circle = factories.CircleFactory()
+        circle.users.add(user_resource[0])
+
+        response = client_resource.post(f'/api/circles/{circle.pk}/connect/', {
+            'target': user_resource[0].pk
+        })
+
+        circle.refresh_from_db()
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert user_resource[0] in circle.users.all()
+
+    def test_disconnect_valid_target(self, client_resource, user_resource):
+        circle = factories.CircleFactory()
+        circle.users.add(user_resource[0])
+
+        response = client_resource.delete(f'/api/circles/{circle.pk}/disconnect/', {
+            'target': user_resource[0].pk
+        })
+
+        circle.refresh_from_db()
+
+        assert response.status_code == status.HTTP_200_OK
+        assert user_resource[0] not in circle.users.all()

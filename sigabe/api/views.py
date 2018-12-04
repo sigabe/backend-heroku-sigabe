@@ -24,7 +24,7 @@ class FriendViewSet(viewsets.ReadOnlyModelViewSet):
         user = self.request.user
         user.friends.remove(obj)
 
-        return Response({'hello'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
 
 
 class NonFriendViewSet(viewsets.ReadOnlyModelViewSet):
@@ -51,8 +51,8 @@ class NonFriendViewSet(viewsets.ReadOnlyModelViewSet):
         return Response({}, status=status.HTTP_201_CREATED)
 
 
-class TrackSerializer(mixins.CreateModelMixin,
-                      viewsets.GenericViewSet):
+class TrackViewSet(mixins.CreateModelMixin,
+                   viewsets.GenericViewSet):
 
     serializer_class = serializers.LocationSerializer
     queryset = models.Location.objects.all()
@@ -67,6 +67,9 @@ class CircleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.Circle.objects.filter(users=self.request.user)
+
+    def perform_create(self, serializer: serializers.LocationSerializer):
+        serializer.save(user=self.request.user)
 
     @action(methods=('post',), detail=True, permission_classes=(WithinCicle,))
     def connect(self, request, pk=None):

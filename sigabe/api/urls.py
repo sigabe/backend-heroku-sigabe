@@ -22,7 +22,7 @@ app_name = "api"
 router = routers.DefaultRouter()
 router.register('friends', views.FriendViewSet, basename='friend')
 router.register('users', views.NonFriendViewSet, basename='user')
-router.register('tracks', views.TrackSerializer, basename='track')
+router.register('tracks', views.TrackViewSet, basename='track')
 router.register('circles', views.CircleViewSet, basename='circle')
 
 urlpatterns = [

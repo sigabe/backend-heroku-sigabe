@@ -1,5 +1,7 @@
+from typing import Any, Sequence
+
 import factory
-from factory import DjangoModelFactory, Faker
+from factory import DjangoModelFactory, Faker, post_generation
 from django.core.files.uploadedfile import SimpleUploadedFile
 from sigabe.users.tests.factories import UserFactory
 from sigabe.api import models
@@ -19,7 +21,6 @@ class LocationFactory(DjangoModelFactory):
 
 class CircleFactory(DjangoModelFactory):
 
-    creator = factory.SubFactory(UserFactory)
     name = Faker('name')
     image = SimpleUploadedFile(
         name='test_image.jpeg',
@@ -29,4 +30,4 @@ class CircleFactory(DjangoModelFactory):
 
     class Meta:
         model = models.Circle
-        django_get_or_create = ['creator', 'name']
+        django_get_or_create = ['name']
