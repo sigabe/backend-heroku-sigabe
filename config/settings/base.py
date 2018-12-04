@@ -72,6 +72,7 @@ THIRD_PARTY_APPS = [
     'rest_framework.authtoken',
     'rest_auth',
     'rest_auth.registration',
+    'drf-yasg',
 ]
 LOCAL_APPS = [
     'sigabe.users.apps.UsersAppConfig',
