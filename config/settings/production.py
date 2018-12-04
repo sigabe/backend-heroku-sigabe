@@ -195,4 +195,4 @@ RAVEN_CONFIG = {
 # Your stuff...
 # ------------------------------------------------------------------------------
 #
-ADMIN_URL = 'to-the-gate-of-power'
+ADMIN_URL = 'to-the-gate-of-power/'
