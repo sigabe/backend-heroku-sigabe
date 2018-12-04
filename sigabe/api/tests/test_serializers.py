@@ -1,110 +1,37 @@
 import pytest
 
-from sigabe.api import serializers, models
-from sigabe.users.tests.factories import UserFactory
+from sigabe.api import serializers
+from sigabe.api.tests import factories
 
 pytestmark = pytest.mark.django_db
 
 
-class TestUserSerializer:
+class TestLocationSerializer:
 
-    def test_user_detail(self):
-        # create an object
-        UserFactory()
+    def test_validity(self):
+        proto_location = factories.LocationFactory.build()
 
-        qs = models.User.objects.all()
-        serializer = serializers.UserSerializer(
-            qs,
-            many=True
+        serializer = serializers.LocationSerializer(
+            data={
+                'user': proto_location.user,
+                'longitude': proto_location.longitude,
+                'latitude': proto_location.latitude
+            }
         )
-
-        # check whether the data given
-        # is complete or not
-        assert serializer.data
-        assert len(serializer.data) == 1
-        assert serializer.data[0]['id']
-        assert serializer.data[0]['username']
-        assert serializer.data[0]['name']
-
-
-class TestFriendSerializer:
-
-    def test_user_detail(self):
-        # create an object
-        UserFactory()
-
-        qs = models.User.objects.all()
-        serializer = serializers.FriendSerializer(
-            qs,
-            many=True
-        )
-
-        # check whether the data given
-        # is partial ( not exposing all user's data)
-        assert serializer.data
-        assert len(serializer.data) == 1
-        assert 'id' not in serializer.data[0]
-        assert serializer.data[0]['username']
-        assert serializer.data[0]['name']
-
-
-class TestNonFriendSerializer:
-
-    def test_user_detail(self):
-        # create an object
-        UserFactory()
-
-        qs = models.User.objects.all()
-        serializer = serializers.NonFriendSerializer(
-            qs,
-            many=True
-        )
-
-        # check whether the data given
-        # is protecting most of user's data
-        assert serializer.data
-        assert len(serializer.data) == 1
-        assert 'id' not in serializer.data[0]
-        assert serializer.data[0]['username']
-        assert 'name' not in serializer.data[0]
-
-
-class TestUserNameSerializer:
-
-    def test_serde(self):
-        # create an object
-        UserFactory(username='jack')
-        UserFactory(username='john')
-
-        qs = models.User.objects.all()
-
-        assert qs.count() == 2
-
-        user, target = qs
-
-        serializer = serializers.ConnectionSerializer(
-            data={'username': target.username}
-        )
-
-        # check the ability to add friends
-        # and still maintaining privacy
-        # of the user
 
         assert serializer.is_valid()
 
-        serializer.save(user=user)
-        user.refresh_from_db()
 
-        assert target in user.friends.all()
-        assert 'id' not in serializer.data
-        assert 'name' not in serializer.data
-        assert serializer.data['username']
+class TestCircleFactorySerializer:
 
-    def test_unrecognized_username(self):
-        proto_user = UserFactory.build()
+    def test_validity(self):
+        proto_circle = factories.CircleFactory.build()
 
-        serializer = serializers.ConnectionSerializer(
-            data={'username': proto_user.username}
+        serializer = serializers.CircleSerializer(
+            data={
+                'name': proto_circle.name,
+                'image': proto_circle.image,
+            }
         )
 
-        assert not serializer.is_valid()
+        assert serializer.is_valid()

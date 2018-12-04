@@ -1,33 +1,32 @@
-from typing import Any, Sequence
+import factory
+from factory import DjangoModelFactory, Faker
+from django.core.files.uploadedfile import SimpleUploadedFile
+from sigabe.users.tests.factories import UserFactory
+from sigabe.api import models
+import random
 
-from django.contrib.auth import get_user_model
-from factory import DjangoModelFactory, Faker, post_generation
 
+class LocationFactory(DjangoModelFactory):
 
-class UserFactory(DjangoModelFactory):
-
-    username = Faker("user_name")
-    email = Faker("email")
-    name = Faker("name")
-
-    @post_generation
-    def password(self, create: bool, extracted: Sequence[Any], **kwargs):
-        password = Faker(
-            "password",
-            length=42,
-            special_chars=True,
-            digits=True,
-            upper_case=True,
-            lower_case=True,
-        ).generate(
-            extra_kwargs={}
-        )
-        self.set_password(password)
-
-    @post_generation
-    def id(self, create: bool, extracted: Sequence[Any], **kwargs):
-        self.id = 
+    user = factory.SubFactory(UserFactory)
+    longitude = random.random()
+    latitude = random.random()
 
     class Meta:
-        model = get_user_model()
-        django_get_or_create = ["username"]
+        model = models.Location
+        django_get_or_create = ['user', 'longitude', 'latitude']
+
+
+class CircleFactory(DjangoModelFactory):
+
+    creator = factory.SubFactory(UserFactory)
+    name = Faker('name')
+    image = SimpleUploadedFile(
+        name='test_image.jpeg',
+        content=open('sigabe/static/images/test_image.jpeg', 'rb').read(),
+        content_type='image/jpeg'
+    )
+
+    class Meta:
+        model = models.Circle
+        django_get_or_create = ['creator', 'name']

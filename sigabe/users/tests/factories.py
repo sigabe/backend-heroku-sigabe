@@ -12,18 +12,9 @@ class UserFactory(DjangoModelFactory):
 
     @post_generation
     def password(self, create: bool, extracted: Sequence[Any], **kwargs):
-        password = Faker(
-            "password",
-            length=42,
-            special_chars=True,
-            digits=True,
-            upper_case=True,
-            lower_case=True,
-        ).generate(
-            extra_kwargs={}
-        )
+        password = 'qwerty1234$'
         self.set_password(password)
 
     class Meta:
         model = get_user_model()
-        django_get_or_create = ["username", "name"]
+        django_get_or_create = ["username"]
