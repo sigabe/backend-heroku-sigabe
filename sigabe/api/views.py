@@ -19,12 +19,12 @@ class FriendViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
     @action(methods=('delete',), detail=True, permission_classes=(permissions.IsAuthenticated,))
-    def disconnect(self, request, pk=None):
+    def connections(self, request, pk=None):
         obj = self.get_object()
         user = self.request.user
         user.friends.remove(obj)
 
-        return Response({}, status=status.HTTP_204_NO_CONTENT)
+        return Response({}, status=status.HTTP_200_OK)
 
 
 class NonFriendViewSet(viewsets.ReadOnlyModelViewSet):
@@ -43,7 +43,7 @@ class NonFriendViewSet(viewsets.ReadOnlyModelViewSet):
         return qs
 
     @action(methods=('post',), detail=True, permission_classes=(permissions.IsAuthenticated,))
-    def connect(self, request, pk=None):
+    def connections(self, request, pk=None):
         obj = self.get_object()
         user = self.request.user
         user.friends.add(obj)
@@ -71,8 +71,8 @@ class CircleViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer: serializers.LocationSerializer):
         serializer.save(user=self.request.user)
 
-    @action(methods=('post',), detail=True, permission_classes=(WithinCicle,))
-    def connect(self, request, pk=None):
+    @action(methods=('post', 'delete',), detail=True, permission_classes=(WithinCicle,))
+    def connections(self, request, pk=None):
         obj = self.get_object()
         try:
             target = request.data['target']
@@ -80,20 +80,18 @@ class CircleViewSet(viewsets.ModelViewSet):
         except (KeyError, ObjectDoesNotExist):
             return Response({'field': 'no target / invalid target'}, status=status.HTTP_400_BAD_REQUEST)
 
+        if request.method == 'POST':
+            return self.connect(obj, target)
+        else:
+            return self.disconnect(obj, target)
+
+    def connect(self, obj, target):
         obj.users.add(target)
         return Response({}, status=status.HTTP_201_CREATED)
 
-    @action(methods=('delete',), detail=True, permission_classes=(WithinCicle,))
-    def disconnect(self, request, pk=None):
-        obj = self.get_object()
-        try:
-            target = request.data['target']
-            target = models.User.objects.get(pk=target)
-        except (KeyError, ObjectDoesNotExist):
-            return Response({'field': 'no target / invalid target'}, status=status.HTTP_400_BAD_REQUEST)
-
+    def disconnect(self, obj, target):
         if target not in obj.users.all():
             return Response({'field': 'target not in circle'}, status=status.HTTP_400_BAD_REQUEST)
 
         obj.users.remove(target)
-        return Response({}, status=status.HTTP_204_NO_CONTENT)
+        return Response({}, status=status.HTTP_200_OK)

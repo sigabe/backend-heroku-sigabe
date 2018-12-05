@@ -9,6 +9,8 @@ from sigabe.api import serializers, views, models
 from sigabe.api.tests import factories
 from sigabe.users.tests.factories import UserFactory
 
+import uuid
+
 
 pytestmark = pytest.mark.django_db
 
@@ -51,7 +53,7 @@ class TestFriendViewSet:
 
     @pytest.mark.django_db(transaction=True)
     def test_unfriend(self, client_resource, user_resource):
-        response = client_resource.delete(f'/api/friends/{user_resource[1].id}/disconnect/')
+        response = client_resource.delete(f'/api/friends/{user_resource[1].id}/connections/')
 
         assert response.status_code == status.HTTP_200_OK
 
@@ -93,7 +95,7 @@ class TestNonFriendViewSet:
         user_resource[0].friends.remove(user_resource[1])
         user_resource[0].save()
 
-        response = client_resource.post(f'/api/users/{user_resource[1].pk}/connect/')
+        response = client_resource.post(f'/api/users/{user_resource[1].pk}/connections/')
 
         assert response.status_code == status.HTTP_201_CREATED
 
@@ -131,7 +133,7 @@ class TestCircleViewSet:
         circle = factories.CircleFactory()
         circle.users.add(user_resource[0])
 
-        response = client_resource.post(f'/api/circles/{circle.pk}/connect/', {
+        response = client_resource.post(f'/api/circles/{circle.pk}/connections/', {
             'target': user_resource[0].pk
         })
 
@@ -144,7 +146,7 @@ class TestCircleViewSet:
         circle = factories.CircleFactory()
         circle.users.add(user_resource[0])
 
-        response = client_resource.delete(f'/api/circles/{circle.pk}/disconnect/', {
+        response = client_resource.delete(f'/api/circles/{circle.pk}/connections/', {
             'target': user_resource[0].pk
         })
 
@@ -152,3 +154,24 @@ class TestCircleViewSet:
 
         assert response.status_code == status.HTTP_200_OK
         assert user_resource[0] not in circle.users.all()
+
+    def test_connect_invalid_target(self, client_resource, user_resource):
+        circle = factories.CircleFactory()
+        circle.users.add(user_resource[0])
+
+        response = client_resource.post(f'/api/circles/{circle.pk}/connections/', {
+            'target': uuid.uuid4()
+        })
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_disconnect_invalid_target(self, client_resource, user_resource):
+        circle = factories.CircleFactory()
+        circle.users.add(user_resource[0])
+
+        response = client_resource.delete(f'/api/circles/{circle.pk}/connections/', {
+            'target': uuid.uuid4()
+        })
+
+        print(response.data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
