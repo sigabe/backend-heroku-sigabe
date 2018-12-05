@@ -129,6 +129,19 @@ class TestCircleViewSet:
 
         assert response.status_code == status.HTTP_201_CREATED
 
+    def test_list(self, client_resource, user_resource):
+        circle = factories.CircleFactory()
+        location = factories.LocationFactory()
+
+        circle.users.add(user_resource[0])
+        circle.users.add(location.user)
+        circle.save()
+
+        response = client_resource.get(f'/api/circles/{circle.pk}/')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data['users']) == 2
+
     def test_connect_valid_target(self, client_resource, user_resource):
         circle = factories.CircleFactory()
         circle.users.add(user_resource[0])
@@ -165,12 +178,23 @@ class TestCircleViewSet:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_disconnect_invalid_target(self, client_resource, user_resource):
+    def test_disconnect_nonexistent_target(self, client_resource, user_resource):
         circle = factories.CircleFactory()
         circle.users.add(user_resource[0])
 
         response = client_resource.delete(f'/api/circles/{circle.pk}/connections/', {
             'target': uuid.uuid4()
+        })
+
+        print(response.data)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_disconnect_invalid_target(self, client_resource, user_resource):
+        circle = factories.CircleFactory()
+        circle.users.add(user_resource[0])
+
+        response = client_resource.delete(f'/api/circles/{circle.pk}/connections/', {
+            'target': user_resource[1].pk
         })
 
         print(response.data)

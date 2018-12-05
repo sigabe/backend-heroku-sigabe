@@ -49,32 +49,6 @@ class NonFriendSerializer(serializers.HyperlinkedModelSerializer):
         }
 
 
-# class ConnectionSerializer(serializers.HyperlinkedModelSerializer):
-
-#     username = serializers.CharField()
-
-#     class Meta:
-#         model = models.User
-#         fields = ('username', 'image')
-#         read_only_fields = ('image',)
-
-#     def validate_username(self, value: str):
-#         if not models.User.objects.filter(username=value).exists():
-#             raise serializers.ValidationError(
-#                 'username not found'
-#             )
-
-#         return value
-
-#     def create(self, validated_data: Dict[str, Any]):
-#         user = validated_data['user']
-#         target = models.User.objects.get(username=validated_data['username'])
-#         user.friends.add(target)
-#         user.save()
-
-#         return target
-
-
 class LocationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Location
