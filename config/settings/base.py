@@ -225,7 +225,7 @@ X_FRAME_OPTIONS = 'DENY'
 # EMAIL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-# EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 
 # ADMIN
 # ------------------------------------------------------------------------------
@@ -257,13 +257,13 @@ SOCIALACCOUNT_ADAPTER = 'sigabe.users.adapters.SocialAccountAdapter'
 # Your stuff...
 # ------------------------------------------------------------------------------
 
-SITE_ID = 1
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'workshopwebpens@gmail.com'
-EMAIL_HOST_PASSWORD = 'workshopwebpens123'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# SITE_ID = 1
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_HOST_USER = 'workshopwebpens@gmail.com'
+# EMAIL_HOST_PASSWORD = 'workshopwebpens123'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 
 REST_FRAMEWORK = {
