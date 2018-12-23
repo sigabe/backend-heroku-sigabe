@@ -22,7 +22,7 @@ DEBUG = env.bool('DJANGO_DEBUG', False)
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # though not all of them may be available with every OS.
 # In Windows, this must be set to your system time zone.
-TIME_ZONE = 'Asia/Jakarta'
+TIME_ZONE = 'UTC'
 # https://docs.djangoproject.com/en/dev/ref/settings/#language-code
 LANGUAGE_CODE = 'en-us'
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
@@ -63,21 +63,15 @@ DJANGO_APPS = [
     'django.contrib.admin',
 ]
 THIRD_PARTY_APPS = [
-    'django_extensions',
     'crispy_forms',
-    'django_filters',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'rest_framework',
-    'rest_framework.authtoken',
-    'rest_auth',
-    'rest_auth.registration',
-    'drf_yasg',
 ]
 LOCAL_APPS = [
     'sigabe.users.apps.UsersAppConfig',
-    # Your stuff: custom apps go here
+    # Your stuff: custom apps go here,
     'sigabe.api',
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -253,27 +247,15 @@ ACCOUNT_ADAPTER = 'sigabe.users.adapters.AccountAdapter'
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 SOCIALACCOUNT_ADAPTER = 'sigabe.users.adapters.SocialAccountAdapter'
 
+# django-compressor
+# ------------------------------------------------------------------------------
+# https://django-compressor.readthedocs.io/en/latest/quickstart/#installation
+INSTALLED_APPS += ['compressor']
+STATICFILES_FINDERS += ['compressor.finders.CompressorFinder']
+
 
 # Your stuff...
 # ------------------------------------------------------------------------------
-
-# SITE_ID = 1
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_HOST_USER = 'workshopwebpens@gmail.com'
-# EMAIL_HOST_PASSWORD = 'workshopwebpens123'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ),
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
-}
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
