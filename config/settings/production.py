@@ -206,4 +206,5 @@ RAVEN_CONFIG = {
 # ------------------------------------------------------------------------------
 #
 ADMIN_URL = 'to-the-gate-of-power/'
-CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_HTTPONLY = True
+AWS_DEFAULT_ACL = None
