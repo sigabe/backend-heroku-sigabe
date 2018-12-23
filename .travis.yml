@@ -10,4 +10,5 @@ language: python
 python:
   - "3.6"
 script:
+  - pip install -r requirements/local.txt
   - pytest
