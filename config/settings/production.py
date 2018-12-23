@@ -206,3 +206,4 @@ RAVEN_CONFIG = {
 # ------------------------------------------------------------------------------
 #
 ADMIN_URL = 'to-the-gate-of-power/'
+CSRF_COOKIE_HTTPONLY = False
